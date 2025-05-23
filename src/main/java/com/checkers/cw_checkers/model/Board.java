@@ -29,6 +29,17 @@ public class Board {
         grid[row][col] = piece;
     }
 
+    public boolean hasPieces(Piece.Color color) {
+        for (int r = 0; r < SIZE; r++) {
+            for (int c = 0; c < SIZE; c++) {
+                Piece piece = grid[r][c];
+                if (piece != null && piece.getColor() == color) return true;
+            }
+        }
+        return false;
+    }
+
+
     public void removePiece(int row, int col) {
         Piece removed = grid[row][col];
         if (removed != null) {

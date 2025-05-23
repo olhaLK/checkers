@@ -1,13 +1,8 @@
 package com.checkers.cw_checkers.model;
 
 public class Piece {
-    public enum Color {
-        GREEN, PINK
-    }
-
-    public enum Type {
-        NORMAL, QUEEN
-    }
+    public enum Color { GREEN, PINK }
+    public enum Type { NORMAL, QUEEN }
 
     private final Color color;
     private Type type;
@@ -25,7 +20,12 @@ public class Piece {
         return type;
     }
 
+    public boolean isQueen() {
+        return type == Type.QUEEN;
+    }
+
     public void promote() {
         this.type = Type.QUEEN;
     }
 }
+

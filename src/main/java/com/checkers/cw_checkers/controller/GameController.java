@@ -70,13 +70,50 @@ public class GameController {
         int dRow = toRow - fromRow;
         int dCol = toCol - fromCol;
 
-        // Побиття
+        if (moving.isQueen()) {
+            if (Math.abs(dRow) != Math.abs(dCol)) return false;
+
+            int stepRow = Integer.signum(dRow);
+            int stepCol = Integer.signum(dCol);
+            int r = fromRow + stepRow, c = fromCol + stepCol;
+
+            boolean captured = false;
+            int capturedRow = -1, capturedCol = -1;
+
+            while (r != toRow && c != toCol) {
+                Piece piece = board.getPiece(r, c);
+                if (piece != null) {
+                    if (piece.getColor() == moving.getColor()) return false;
+                    if (captured) return false; // більше ніж 1 фігура — заборона
+                    captured = true;
+                    capturedRow = r;
+                    capturedCol = c;
+                }
+                r += stepRow;
+                c += stepCol;
+            }
+
+            if (board.getPiece(toRow, toCol) != null) return false;
+
+            board.setPiece(toRow, toCol, moving);
+            board.removePiece(fromRow, fromCol);
+
+            if (captured) {
+                board.removePiece(capturedRow, capturedCol);
+                currentPlayer.incrementKills();
+            }
+
+            switchTurn();
+            return true;
+        }
+
+        // Побиття звичайною фігурою
         if (Math.abs(dRow) == 2 && Math.abs(dCol) == 2) {
             int midRow = (fromRow + toRow) / 2;
             int midCol = (fromCol + toCol) / 2;
             Piece middle = board.getPiece(midRow, midCol);
 
-            if (middle != null && middle.getColor() != moving.getColor()) {
+            if (middle != null && middle.getColor() != moving.getColor() && board.getPiece(toRow, toCol) == null) {
                 board.setPiece(toRow, toCol, moving);
                 board.removePiece(fromRow, fromCol);
                 board.removePiece(midRow, midCol);
@@ -87,7 +124,7 @@ public class GameController {
             }
         }
 
-        // Звичайний хід
+        // Простий хід
         if (Math.abs(dRow) == 1 && Math.abs(dCol) == 1 && board.getPiece(toRow, toCol) == null) {
             board.setPiece(toRow, toCol, moving);
             board.removePiece(fromRow, fromCol);
@@ -98,6 +135,7 @@ public class GameController {
 
         return false;
     }
+
 
 
     private void checkPromotion(int row, int col) {
@@ -111,7 +149,8 @@ public class GameController {
     }
 
     public boolean isGameOver() {
-        return player1.getScore() == 0 || player2.getScore() == 0;
+        return !board.hasPieces(Piece.Color.GREEN) || !board.hasPieces(Piece.Color.PINK);
+
     }
 
     public String getWinnerName() {
